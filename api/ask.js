@@ -1,4 +1,3 @@
-// api/ask.js — debug version
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
@@ -6,11 +5,9 @@ export default async function handler(req, res) {
   }
 
   const { question } = req.body;
-  if (!question) return res.status(400).json({ text: 'Missing question' });
+  if (!question) return res.status(400).end('Missing question');
 
   try {
-    console.log('🔍 Incoming question:', question);
-
     const openaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -24,20 +21,18 @@ export default async function handler(req, res) {
       })
     });
 
-    const raw = await openaiRes.text();
-    console.log('🧾 Raw OpenAI response:', raw);
+    const data = await openaiRes.json();
+    console.log("🧠 OpenAI full response:", JSON.stringify(data, null, 2)); // Add logging for debugging
 
-    const data = JSON.parse(raw);
-    const text = data?.choices?.[0]?.message?.content;
-
-    if (!text) {
-      console.log('⚠️ No reply in response');
-      return res.status(200).json({ text: "No reply from OpenAI." });
+    if (!data || !data.choices || data.choices.length === 0) {
+      return res.status(500).json({ text: "No reply from OpenAI." });
     }
 
+    const text = data.choices[0].message.content;
     res.status(200).json({ text });
+
   } catch (err) {
     console.error("❌ OpenAI API Error:", err);
-    res.status(500).json({ text: "API error — see Vercel logs." });
+    res.status(500).json({ text: "Server error — see Vercel logs." });
   }
 }
