@@ -1,4 +1,4 @@
-// api/ask.js — Vercel serverless function
+// api/ask.js — debug version
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
@@ -6,38 +6,38 @@ export default async function handler(req, res) {
   }
 
   const { question } = req.body;
-  if (!question) return res.status(400).json({ text: 'Missing question.' });
-
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) {
-    console.error('Missing OpenAI API key.');
-    return res.status(500).json({ text: 'Server misconfiguration — API key not set.' });
-  }
+  if (!question) return res.status(400).json({ text: 'Missing question' });
 
   try {
-    const openaiRes = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
+    console.log('🔍 Incoming question:', question);
+
+    const openaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
-        messages: [{ role: 'user', content: question }],
+        model: "gpt-3.5-turbo",
+        messages: [{ role: "user", content: question }],
         temperature: 0.7
       })
     });
 
-    const data = await openaiRes.json();
+    const raw = await openaiRes.text();
+    console.log('🧾 Raw OpenAI response:', raw);
 
-    if (!data.choices || !data.choices[0]?.message?.content) {
-      console.error('Unexpected OpenAI response:', data);
-      return res.status(500).json({ text: 'No valid reply from OpenAI.' });
+    const data = JSON.parse(raw);
+    const text = data?.choices?.[0]?.message?.content;
+
+    if (!text) {
+      console.log('⚠️ No reply in response');
+      return res.status(200).json({ text: "No reply from OpenAI." });
     }
 
-    res.status(200).json({ text: data.choices[0].message.content });
+    res.status(200).json({ text });
   } catch (err) {
-    console.error('OpenAI API error:', err);
-    res.status(500).json({ text: 'API error — check logs for details.' });
+    console.error("❌ OpenAI API Error:", err);
+    res.status(500).json({ text: "API error — see Vercel logs." });
   }
 }
