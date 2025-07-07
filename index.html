@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>VA Benefits Assistant</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: #f5f7fa;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .container {
+      background: white;
+      padding: 32px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+      max-width: 600px;
+      width: 100%;
+      text-align: center;
+    }
+    .search {
+      display: flex;
+      margin: 20px 0;
+    }
+    input {
+      flex: 1;
+      padding: 12px 16px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px 0 0 8px;
+      outline: none;
+    }
+    button {
+      background: #0061f2;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      border-radius: 0 8px 8px 0;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #004bb5;
+    }
+    #response {
+      margin-top: 16px;
+      padding: 15px;
+      background: #eef1f6;
+      border-radius: 8px;
+      text-align: left;
+      white-space: pre-wrap;
+      min-height: 100px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>VA Benefits Assistant</h1>
+    <div class="search">
+      <input id="question" placeholder="e.g., What benefits do I qualify for?" />
+      <button onclick="ask()">Search</button>
+    </div>
+    <div id="response">Awaiting your question...</div>
+  </div>
+
+  <script>
+    async function ask() {
+      const q = document.getElementById('question').value.trim();
+      if (!q) return;
+      const resBox = document.getElementById('response');
+      resBox.textContent = 'Thinking...';
+
+      try {
+        const r = await fetch('/api/ask', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question: q })
+        });
+        const d = await r.json();
+        resBox.textContent = d.text;
+      } catch (e) {
+        console.error(e);
+        resBox.textContent = 'Error — check console or logs.';
+      }
+    }
+  </script>
+</body>
+</html>
