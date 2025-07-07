@@ -1,10 +1,1 @@
-// api/token.js
-export default function handler(req, res) {
-  const token = process.env.GEMINI_API_KEY;
 
-  if (!token) {
-    return res.status(500).json({ error: 'Token not configured in environment' });
-  }
-
-  res.status(200).json({ token });
-}
