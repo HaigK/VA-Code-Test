@@ -1,8 +1,24 @@
 {
-  "builds": [{ "src": "*.html", "use": "@vercel/static" }],
+  "builds": [
+    { "src": "*.html", "use": "@vercel/static" },
+    { "src": "api/**/*.js", "use": "@vercel/node" }
+  ],
   "routes": [
-    { "src": "/api/(.*)", "dest": "/api/$1.js" },
-    { "src": "/login", "dest": "/login.html" },
-    { "src": "/", "dest": "/login.html" }
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1.js"
+    },
+    {
+      "src": "/login",
+      "dest": "/login.html"
+    },
+    {
+      "src": "/index",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/",
+      "dest": "/login.html"
+    }
   ]
 }
