@@ -61,11 +61,11 @@
 
   <script>
     function login() {
-      const u = document.getElementById('username').value;
-      const p = document.getElementById('password').value;
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
       const errorBox = document.getElementById('error');
 
-      if (u === 'admin' && p === 'admin') {
+      if (username === 'admin' && password === 'admin') {
         sessionStorage.setItem('loggedIn', 'true');
         window.location.href = 'index.html';
       } else {
